@@ -1,22 +1,16 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <fstream>
 #include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 using namespace std;
 int main()
 {
-    ifstream ConfigFile;
-    string one;
-    ConfigFile.open("./assets/config.txt");
-    ConfigFile >> one;
-    cout << one ;
-    ConfigFile.close();
-    ofstream ConfOut("./assets/config.txt");
-    ConfOut << "tests";
-    ConfOut.close();
-
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
-    window.setFramerateLimit(60);
+    ifstream f("./assets/test.json");
+    json data = json::parse(f);
+    auto window = sf::RenderWindow(sf::VideoMode({(data["width"]), (data["height"])}), "CMake SFML Project");
+    window.setFramerateLimit(int(data["framerate"]));
 
     while (window.isOpen())
     {

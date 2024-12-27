@@ -1,4 +1,6 @@
 {
-  "pi": 3.141,
-  "happy": true
+"width": 1920,
+"height": 1080,
+"framerate": 60
+
 }
