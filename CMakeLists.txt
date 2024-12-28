@@ -17,6 +17,10 @@ FetchContent_Declare(json
 FetchContent_MakeAvailable(SFML json)
 
 add_executable(main src/main.cpp)
-target_link_libraries(main PRIVATE SFML::Graphics)
+
+
+target_link_libraries(main PRIVATE SFML::Window)
+target_link_libraries(main PRIVATE SFML::System)
 target_link_libraries(main PRIVATE SFML::Audio)
+target_link_libraries(main PRIVATE SFML::Graphics)
 target_link_libraries(main PRIVATE nlohmann_json::nlohmann_json)
