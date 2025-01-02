@@ -18,7 +18,6 @@ FetchContent_MakeAvailable(SFML json)
 
 add_executable(main src/main.cpp)
 
-target_include_directories(main PUBLIC include)
 target_link_libraries(main PRIVATE SFML::Window)
 target_link_libraries(main PRIVATE SFML::System)
 target_link_libraries(main PRIVATE SFML::Audio)
