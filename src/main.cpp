@@ -5,6 +5,7 @@
 #include <SFML/Window.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "../include/menu.h"
 using json = nlohmann::json;
 
 // NOTE: Some constants, size of each tile on map and the size of maps (in tiles) 
@@ -34,50 +35,71 @@ int main()
     // NOTE: Creating map, (make it in other file later) of size of MaxWidth and MaxHeight
 
     // NOTE: config.json is a config file (wow) that contains width, height and framerate 
-    std::fstream f("./assets/config.json");
-    json data = json::parse(f);
+    std::fstream f("./config/settings.json");
+    json settings = json::parse(f);
+    std::cout << "[PNZ] Config succesful loaded!" << std::endl;
 
     // NOTE: creating and setting up window 
-    auto window = sf::RenderWindow(sf::VideoMode({(data["width"]), (data["height"])}), "CMake SFML Project");
-    window.setFramerateLimit(int(data["framerate"]));
+    auto window = sf::RenderWindow(sf::VideoMode({(settings["Screen_Width"]), (settings["Screen_Height"])}), "PNZ");
+    window.setFramerateLimit(int(settings["Framerate"]));
+    std::cout << "[PNZ] Window succesful created and set!" << std::endl;
 
     // NOTE: Creating view 
-    sf::View view1(sf::FloatRect({0.f, 0.f}, {(data["width"]), (data["height"])}));
+    sf::View view1(sf::FloatRect({0.f, 0.f}, {(settings["Screen_Width"]), (settings["Screen_Height"])}));
+    std::cout << "[PNZ] View succesful created!" << std::endl;
 
-    while (window.isOpen())
-    {
-        // NOTE: Its a event checker, don't move without a reson
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-            {
+
+    sf::Font font;
+    if (!font.openFromFile("./assets/arial.ttf")) { 
+        std::cerr << "Failed to load font in main!" << std::endl;
+        return -1;  
+    }
+    std::cout << "[PNZ] Font succesful loaded!" << std::endl;
+
+    // NOTE: Creating menu
+    Menu menu(window.getSize().x, window.getSize().y);
+    std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
+    bool showMenu = true;
+
+    while (window.isOpen()) {
+        while (const std::optional<sf::Event> event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                std::cout << "[PNZ] Window close event detected." << std::endl;
                 window.close();
+            } else if (event->is<sf::Event::KeyPressed>()) {
+                const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
+                if (keyEvent->code == sf::Keyboard::Key::Up) {
+                    menu.moveUp();
+                } else if (keyEvent->code == sf::Keyboard::Key::Down) {
+                    menu.moveDown();
+                } else if (keyEvent->code == sf::Keyboard::Key::Enter) {
+                    int selectedItem = menu.getSelectedItemIndex();
+                    if (selectedItem == 0) {
+                        std::cout << "Start game selected" << std::endl;
+                        showMenu = false;
+                    } else if (selectedItem == 1) {
+                        std::cout << "Options selected" << std::endl;
+                        // Options
+                    } else if (selectedItem == 2) {
+                        std::cout << "Exit selected" << std::endl;
+                        window.close();
+                    }
+                }
             }
         }
-        // NOTE: Here is main loop. Here are should be all code that need to be run every frame
 
-        int positionX = view1.getCenter().x;
-        int positionY = view1.getCenter().y;
-        float MovingValue = 5.f;
-
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
-            view1.move({-MovingValue, 0});
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
-            view1.move({0, -MovingValue});
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
-            view1.move({0, MovingValue});
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
-            view1.move({MovingValue, 0});
-
-        // NOTE: window.clear() will clear the screen, so if you want to draw somethig, it should be after that line, but before display()
         window.clear();
-        window.setView(view1);
-        for (int i = 0; i < MaxWidth; i++)
-        {
-            for (int j = 0; j < MaxHeight; j++)
-                DrawMapSprite(i*tileWidth, j*tileHeight, map[i][j], window);
+        if (showMenu) {
+            menu.draw(window);
+        } else {
+            for (int i = 0; i < MaxWidth; i++) {
+                for (int j = 0; j < MaxHeight; j++) {
+                    DrawMapSprite(i * tileWidth, j * tileHeight, map[i][j], window);
+                }
+            }
         }
-
         window.display();
     }
+
+    return 0;
 }
