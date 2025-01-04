@@ -8,7 +8,6 @@
 #include "../include/menu.h"
 using json = nlohmann::json;
 
-const int MaxWidth = 10, MaxHeight = 10;
 class Tile {
     sf::Sprite sprite;
     //
@@ -28,8 +27,8 @@ public:
         {
             tileWidth = 64;
             tileHeight = 64;
-            X = 0+float(a*tileWidth);
-            Y = 0+float(b*tileHeight);
+            X = float(a*tileWidth);
+            Y = float(b*tileHeight);
 
             totalTilesX = tileSheetTexture.getSize().x / tileWidth;
             totalTilesY = tileSheetTexture.getSize().y / tileHeight;
@@ -56,23 +55,23 @@ private:
     int MaxHeight;
     std::vector<Tile> MapOfTheLevel;
 public:
-    Map(int Width, int Height, int *map, sf::Texture &texture)
+    Map(int Width, int Height, std::vector<int> map, sf::Texture &texture)
     {
         MaxWidth = Width;
         MaxHeight = Height;
-        for (int i = 0; i < MaxWidth; i++)
+        for (int i = 0; i < MaxHeight; i++)
         {
-            for (int j = 0; j < MaxHeight; j++)
+            for (int j = 0; j < MaxWidth; j++)
             {
-                Tile tmp(*((map + i*MaxHeight) + j), i, j, texture);
+                Tile tmp(map[i*MaxWidth + j], j, i, texture);
                 MapOfTheLevel.push_back(tmp);
             }
         }
     }
     void DrawTheLevel(sf::RenderWindow &window) {
-        for (int i = 0; i < MaxWidth; i++) 
+        for (int i = 0; i < MaxHeight; i++)
         {
-            for (int j = 0; j < MaxHeight; j++)
+            for (int j = 0; j < MaxWidth; j++)
             {
                 window.draw(MapOfTheLevel[i*MaxWidth+j].Draw());
             }
@@ -82,13 +81,24 @@ public:
 };
 
 int main()
-{
+{  
     sf::Texture TileSheet;
-    int map[MaxWidth][MaxHeight] = {0};
-    map[2][3] = 1;
-    Map testowa(MaxWidth, MaxHeight, *map, TileSheet);
+    
+    std::fstream tel("config/maps.json");
+    json test = json::parse(tel);
 
-    // NOTE: Creating map, (make it in other file later) of size of MaxWidth and MaxHeight
+    auto v = test["Map1"].get<std::vector<int>>();
+    int MaxWidth = test["Width1"];
+    int MaxHeight = test["Height1"];
+    
+    Map testowa(MaxWidth, MaxHeight, v, TileSheet);
+
+
+
+
+
+
+
 
     // NOTE: config.json is a config file (wow) that contains width, height and framerate 
     std::fstream f("./config/settings.json");
@@ -103,7 +113,6 @@ int main()
     // NOTE: Creating view 
     sf::View view1(sf::FloatRect({2.f, 2.f}, {(settings["Screen_Width"]), (settings["Screen_Height"])}));
     std::cout << "[PNZ] View succesful created!" << std::endl;
-
 
     sf::Font font;
     if (!font.openFromFile("./assets/arial.ttf")) { 
