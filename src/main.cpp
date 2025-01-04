@@ -7,29 +7,89 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-// NOTE: Some constants, size of each tile on map and the size of maps (in tiles) 
-// WARNING!: For some strange reasons (and no longer existing default sf::Sprite constructor) I had to do it with classes
-int tileWidth = 64, tileHeight = 64;
-const int MaxWidth = 4, MaxHeight = 6;
 
-// NOTE: a draw Sprite function (will be updated)
-void DrawMapSprite(int x, int y, int tile, sf::RenderWindow &window) {
-    int a = 0+x;
-    int b = 0+y;
-    sf::Texture textu("assets/ground.png");
-    sf::Sprite sprite(textu);
-    
-    sprite.setTextureRect(sf::IntRect({tileWidth, 0}, {tileWidth, tileHeight}));
-    if (tile == 0)
-        sprite.setTextureRect(sf::IntRect({0, 0}, {tileWidth, tileHeight}));
-    sprite.setPosition({float(a), float(b)});
-    window.draw(sprite); 
-}
+const int MaxWidth = 10, MaxHeight = 10;
+class Tile {
+    sf::Sprite sprite;
+
+
+    int tileWidth;
+    int tileHeight;
+
+    int totalTilesX;
+    int totalTilesY;
+
+    float X;
+    float Y;
+
+public:
+    Tile(int typeOfTile, int a, int b, sf::Texture &tileSheetTexture): sprite(tileSheetTexture)
+    {
+        if (tileSheetTexture.loadFromFile("assets/ground.png"))
+        {
+            tileWidth = 64;
+            tileHeight = 64;
+            X = 0+float(a*tileWidth);
+            Y = 0+float(b*tileHeight);
+
+            totalTilesX = tileSheetTexture.getSize().x / tileWidth;
+            totalTilesY = tileSheetTexture.getSize().y / tileHeight;
+            
+            sprite.setTextureRect(sf::IntRect({0, 0},{tileWidth, tileHeight}));
+            sprite.setPosition({X, Y});
+            
+            if (typeOfTile == 1)
+            {
+                sprite.setTextureRect(sf::IntRect({tileWidth, 0},{tileWidth, tileHeight}));
+                sprite.setPosition({X, Y});
+            }
+        }
+    }
+    sf::Sprite Draw() {
+        return sprite;
+    }
+};
+
+
+class Map {
+private:
+    int MaxWidth;
+    int MaxHeight;
+    std::vector<Tile> MapOfTheLevel;
+public:
+    Map(int Width, int Height, int *map, sf::Texture &texture)
+    {
+        MaxWidth = Width;
+        MaxHeight = Height;
+        for (int i = 0; i < MaxWidth; i++)
+        {
+            for (int j = 0; j < MaxHeight; j++)
+            {
+                Tile tmp(*((map + i*MaxHeight) + j), i, j, texture);
+                MapOfTheLevel.push_back(tmp);
+            }
+        }
+    }
+    void DrawTheLevel(sf::RenderWindow &window) {
+        for (int i = 0; i < MaxWidth; i++) 
+        {
+            for (int j = 0; j < MaxHeight; j++)
+            {
+                window.draw(MapOfTheLevel[i*MaxWidth+j].Draw());
+            }
+        }
+    }
+
+};
+
+
 
 int main()
 {
+    sf::Texture TileSheet;
     int map[MaxWidth][MaxHeight] = {0};
     map[2][3] = 1;
+    Map testowa(MaxWidth, MaxHeight, *map, TileSheet);
 
     // NOTE: Creating map, (make it in other file later) of size of MaxWidth and MaxHeight
 
@@ -42,7 +102,7 @@ int main()
     window.setFramerateLimit(int(data["framerate"]));
 
     // NOTE: Creating view 
-    sf::View view1(sf::FloatRect({0.f, 0.f}, {(data["width"]), (data["height"])}));
+    sf::View view1(sf::FloatRect({2.f, 2.f}, {(data["width"]), (data["height"])}));
 
     while (window.isOpen())
     {
@@ -72,12 +132,8 @@ int main()
         // NOTE: window.clear() will clear the screen, so if you want to draw somethig, it should be after that line, but before display()
         window.clear();
         window.setView(view1);
-        for (int i = 0; i < MaxWidth; i++)
-        {
-            for (int j = 0; j < MaxHeight; j++)
-                DrawMapSprite(i*tileWidth, j*tileHeight, map[i][j], window);
-        }
-
+        testowa.DrawTheLevel(window);
+        // DrawMapSprite(map, window);
         window.display();
     }
 }
