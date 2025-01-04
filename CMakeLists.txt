@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.27)
 project(PNZ LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -16,7 +16,7 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(SFML json)
 
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/menu.cpp)
 
 target_link_libraries(main PRIVATE SFML::Window)
 target_link_libraries(main PRIVATE SFML::System)
