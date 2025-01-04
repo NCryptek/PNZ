@@ -8,8 +8,8 @@ Menu::Menu(float width, float height) : backgroundTexture("./assets/menu_backgro
         std::abort(); // Abort if the font fails to load
     }
     std::cout << "[PNZ] Font loaded successfully in menu!" << std::endl;
-
-
+    //
+    //
     sf::Vector2u textureSize = backgroundTexture.getSize();
     sf::Vector2f windowSize(width, height);
     // backgroundSprite.setScale(windowSize);

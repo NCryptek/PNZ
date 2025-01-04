@@ -11,7 +11,7 @@ using json = nlohmann::json;
 const int MaxWidth = 10, MaxHeight = 10;
 class Tile {
     sf::Sprite sprite;
-
+    //
     int tileWidth;
     int tileHeight;
 

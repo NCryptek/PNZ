@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
-
+//
 class Menu {
 public:
     Menu(float width, float height);
