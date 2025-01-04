@@ -2,7 +2,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-Menu::Menu(float width, float height) : backgroundTexture("./assets/menu_background.png"), backgroundSprite(backgroundTexture) {
+Menu::Menu(float width, float height) : backgroundTexture("./assets/menu_backgroundd.png"), backgroundSprite(backgroundTexture) {
     if (!font.openFromFile("./assets/arial.ttf")) {
         std::cerr << "Failed to load font!" << std::endl;
         std::abort(); // Abort if the font fails to load
