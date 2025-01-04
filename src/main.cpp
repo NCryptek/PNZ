@@ -92,11 +92,27 @@ int main()
         if (showMenu) {
             menu.draw(window);
         } else {
+            int positionX = view1.getCenter().x;
+            int positionY = view1.getCenter().y;
+            float MovingValue = 5.f;
+
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
+                view1.move({-MovingValue, 0});
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
+                view1.move({0, -MovingValue});
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
+                view1.move({0, MovingValue});
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
+                view1.move({MovingValue, 0});
+
+
             for (int i = 0; i < MaxWidth; i++) {
                 for (int j = 0; j < MaxHeight; j++) {
                     DrawMapSprite(i * tileWidth, j * tileHeight, map[i][j], window);
                 }
             }
+
+            window.setView(view1);
         }
         window.display();
     }
