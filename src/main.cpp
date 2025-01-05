@@ -80,8 +80,18 @@ public:
 
 };
 
+class Garage {
+
+
+
+
+
+
+
+};
+
 int main()
-{  
+{   // NOTE: empty texture used later to use map
     sf::Texture TileSheet;
     
     std::fstream tel("config/maps.json");
@@ -92,10 +102,6 @@ int main()
     int MaxHeight = test["Height1"];
     
     Map testowa(MaxWidth, MaxHeight, v, TileSheet);
-
-
-
-
 
 
 
@@ -112,6 +118,8 @@ int main()
 
     // NOTE: Creating view 
     sf::View view1(sf::FloatRect({2.f, 2.f}, {(settings["Screen_Width"]), (settings["Screen_Height"])}));
+    view1.zoom(0.5);
+    view1.setCenter({200, 200});
     std::cout << "[PNZ] View succesful created!" << std::endl;
 
     sf::Font font;
@@ -125,13 +133,15 @@ int main()
     Menu menu(window.getSize().x, window.getSize().y);
     std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
     bool showMenu = true;
+    int level = 1;
+    // INFO: 0 - garaż, 1-4 - aktywne poziomy
 
     while (window.isOpen()) {
         while (const std::optional<sf::Event> event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 std::cout << "[PNZ] Window close event detected." << std::endl;
                 window.close();
-            } else if (event->is<sf::Event::KeyPressed>()) {
+            } else if (event->is<sf::Event::KeyPressed>() && showMenu) {
                 const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
                 if (keyEvent->code == sf::Keyboard::Key::Up) {
                     menu.moveUp();
@@ -157,6 +167,12 @@ int main()
         if (showMenu) {
             menu.draw(window);
         } else {
+
+            if(level == 0) {
+
+
+            }
+            if(level == 1) {
             int positionX = view1.getCenter().x;
             int positionY = view1.getCenter().y;
             float MovingValue = 5.f;
@@ -168,13 +184,11 @@ int main()
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
                 view1.move({0, MovingValue});
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
-                view1.move({MovingValue, 0});
-
-
-          
+                view1.move({MovingValue, 0});    
 
             window.setView(view1);
             testowa.DrawTheLevel(window);
+            }
         }
         window.display();
     }
