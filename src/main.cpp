@@ -82,7 +82,13 @@ public:
 
 class Garage {
 
+public:
+    Garage(float width, float height) {
 
+    }
+    void draw(sf::RenderWindow &window) {
+        std::cout << "test";
+    }
 
 
 
@@ -169,8 +175,7 @@ int main()
         } else {
 
             if(level == 0) {
-
-
+                
             }
             if(level == 1) {
             int positionX = view1.getCenter().x;
