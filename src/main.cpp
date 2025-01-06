@@ -10,7 +10,7 @@ using json = nlohmann::json;
 
 class Tile {
     sf::Sprite sprite;
-    //
+
     int tileWidth;
     int tileHeight;
 
@@ -81,13 +81,18 @@ public:
 };
 
 class Garage {
-
+    sf::Sprite sprite;
+    sf::Texture texture;
 public:
-    Garage(float width, float height) {
+    Garage(float width, float height): sprite(texture){
+        if (texture.loadFromFile("assets/hangar_background.jpg")) {
+            std::cout << "loaded file\n";
+            sprite.setTextureRect(sf::IntRect({0, 0},{int(width), int(height)}));
 
+        }
     }
-    void draw(sf::RenderWindow &window) {
-        std::cout << "test";
+    void Draw(sf::RenderWindow &window) {
+        window.draw(sprite);
     }
 
 
@@ -99,18 +104,24 @@ public:
 int main()
 {   // NOTE: empty texture used later to use map
     sf::Texture TileSheet;
-    
     std::fstream tel("config/maps.json");
     json test = json::parse(tel);
-
     auto v = test["Map1"].get<std::vector<int>>();
     int MaxWidth = test["Width1"];
     int MaxHeight = test["Height1"];
-    
-    Map testowa(MaxWidth, MaxHeight, v, TileSheet);
-
-
-
+    Map MapaNr1(MaxWidth, MaxHeight, v, TileSheet);
+    v = test["Map2"].get<std::vector<int>>();
+    MaxWidth = test["Width2"];
+    MaxHeight = test["Height2"];
+    Map MapaNr2(MaxWidth, MaxHeight, v, TileSheet);
+    v = test["Map3"].get<std::vector<int>>();
+    MaxWidth = test["Width3"];
+    MaxHeight = test["Height3"];
+    Map MapaNr3(MaxWidth, MaxHeight, v, TileSheet);
+    v = test["Map4"].get<std::vector<int>>();
+    MaxWidth = test["Width4"];
+    MaxHeight = test["Height4"];
+    Map MapaNr4(MaxWidth, MaxHeight, v, TileSheet);
 
     // NOTE: config.json is a config file (wow) that contains width, height and framerate 
     std::fstream f("./config/settings.json");
@@ -139,7 +150,10 @@ int main()
     Menu menu(window.getSize().x, window.getSize().y);
     std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
     bool showMenu = true;
-    int level = 1;
+    int level = 4;
+
+    Garage uwu(window.getSize().x, window.getSize().y);
+
     // INFO: 0 - garaż, 1-4 - aktywne poziomy
 
     while (window.isOpen()) {
@@ -175,7 +189,7 @@ int main()
         } else {
 
             if(level == 0) {
-                
+                uwu.Draw(window);
             }
             if(level == 1) {
             int positionX = view1.getCenter().x;
@@ -192,8 +206,60 @@ int main()
                 view1.move({MovingValue, 0});    
 
             window.setView(view1);
-            testowa.DrawTheLevel(window);
+            MapaNr1.DrawTheLevel(window);
             }
+            if(level == 2) {
+                int positionX = view1.getCenter().x;
+                int positionY = view1.getCenter().y;
+                float MovingValue = 5.f;
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
+                    view1.move({-MovingValue, 0});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
+                    view1.move({0, -MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
+                    view1.move({0, MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
+                    view1.move({MovingValue, 0});
+
+                window.setView(view1);
+                MapaNr2.DrawTheLevel(window);
+            }
+            if(level == 3) {
+                int positionX = view1.getCenter().x;
+                int positionY = view1.getCenter().y;
+                float MovingValue = 5.f;
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
+                    view1.move({-MovingValue, 0});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
+                    view1.move({0, -MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
+                    view1.move({0, MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
+                    view1.move({MovingValue, 0});
+
+                window.setView(view1);
+                MapaNr3.DrawTheLevel(window);
+            }
+            if(level == 4) {
+                int positionX = view1.getCenter().x;
+                int positionY = view1.getCenter().y;
+                float MovingValue = 5.f;
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
+                    view1.move({-MovingValue, 0});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
+                    view1.move({0, -MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
+                    view1.move({0, MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
+                    view1.move({MovingValue, 0});
+
+                window.setView(view1);
+                MapaNr4.DrawTheLevel(window);
+            }
+
         }
         window.display();
     }
