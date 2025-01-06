@@ -26,8 +26,9 @@ Menu::Menu(float width, float height, nlohmann::json& settings) : settings(setti
         menuItems.push_back(text);
     }
 
-
-    std::vector<std::string> items2 = {"Resolution", "Framerate"};        
+    std::string resolution = "Resolution: " + to_string(settings["Screen_Width"]) + "x" + to_string(settings["Screen_Height"]);
+    std::string framerate = "Framerate: " + to_string(settings["Framerate"]);
+    std::vector<std::string> items2 = {resolution, framerate};        
     for (size_t i = 0; i < items2.size(); ++i) {
         sf::Text text(font, items2[i], 60);
         text.setStyle(sf::Text::Bold);
