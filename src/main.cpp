@@ -136,7 +136,7 @@ int main()
     std::cout << "[PNZ] Font succesful loaded!" << std::endl;
 
     // NOTE: Creating menu
-    Menu menu(window.getSize().x, window.getSize().y);
+    Menu menu(window.getSize().x, window.getSize().y, settings);
     std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
     bool showMenu = true;
     int level = 1;
@@ -156,13 +156,14 @@ int main()
                 } else if (keyEvent->code == sf::Keyboard::Key::Enter) {
                     int selectedItem = menu.getSelectedItemIndex();
                     if (selectedItem == 0) {
-                        std::cout << "Start game selected" << std::endl;
+                        std::cout << "[PNZ -> Menu] Select Campaign selected" << std::endl;
                         showMenu = false;
                     } else if (selectedItem == 1) {
-                        std::cout << "Options selected" << std::endl;
-                        // Options
+                        std::cout << "[PNZ -> Menu] Options selected" << std::endl;
+                        menu.setCurrentPageIndex(1);
+                        menu.setSelectedItemIndex(0);
                     } else if (selectedItem == 2) {
-                        std::cout << "Exit selected" << std::endl;
+                        std::cout << "[PNZ -> Menu] Exit selected" << std::endl;
                         window.close();
                     }
                 }
