@@ -195,7 +195,7 @@ int main()
     std::cout << "[PNZ] Font succesful loaded!" << std::endl;
 
     // NOTE: Creating menu
-    Menu menu(window.getSize().x, window.getSize().y);
+    Menu menu(window.getSize().x, window.getSize().y, settings);
     std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
     bool showMenu = true;
     int level = -1;
@@ -220,16 +220,31 @@ int main()
 
                 if (keyEvent->code == sf::Keyboard::Key::Enter) {
                     int selectedItem = menu.getSelectedItemIndex();
-                    if (selectedItem == 0) {
-                        std::cout << "Start game selected" << std::endl;
+                    int currentPage = menu.getCurrentPageIndex();
+                    if (selectedItem == 0 && currentPage == 0) {
+                        std::cout << "[PNZ -> Menu] Selected: Campaign" << std::endl;
                         showMenu = false;
                         level = 0;
-                    } else if (selectedItem == 1) {
-                        std::cout << "Options selected" << std::endl;
-                        // Options
-                    } else if (selectedItem == 2) {
-                        std::cout << "Exit selected" << std::endl;
+                    } else if (selectedItem == 1 && currentPage == 0) {
+                        std::cout << "[PNZ -> Menu] Selected: Options" << std::endl;
+                        menu.setMenuPage(0, 1);
+                    } else if (selectedItem == 2 && currentPage == 0) {
+                        std::cout << "[PNZ -> Menu] Selected: Exit" << std::endl;
                         window.close();
+                    } else if (selectedItem == 2 && currentPage == 1) { 
+                        std::cout << "[PNZ -> Men - Options] Selected: Back" << std::endl;
+                        menu.setMenuPage(0, 0);
+                    }
+                } else if (keyEvent->code == sf::Keyboard::Key::Right) { 
+                    int selectedItem = menu.getSelectedItemIndex();
+                    int currentPage = menu.getCurrentPageIndex();
+                    if (selectedItem == 0 && currentPage == 1) { 
+                        std::cout << "[PNZ -> Menu - Settings] Changed: Resolution" << std::endl;
+                        menu.setSetting(1, window);
+                    }
+                    if (selectedItem == 1 && currentPage == 1) { 
+                        std::cout << "[PNZ -> Menu - Settings] Changed: Framerate" << std::endl;
+                        menu.setSetting(2, window);
                     }
                 }
             }

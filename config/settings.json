@@ -1,6 +1,6 @@
 {
-    "Screen_Width": 1920,
+    "Empty": "",
+    "Framerate": 60,
     "Screen_Height": 1080,
-    "Framerate": 60, 
-    "Empty": "" 
+    "Screen_Width": 1920
 }
