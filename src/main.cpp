@@ -10,7 +10,7 @@ using json = nlohmann::json;
 
 class Tile {
     sf::Sprite sprite;
-    //
+
     int tileWidth;
     int tileHeight;
 
@@ -81,36 +81,95 @@ public:
 };
 
 class Garage {
+    sf::Sprite sprite;
+    sf::Texture texture;
+    std::vector<sf::Text> HangarItems;
+    sf::Font font;
+    int selectedItemIndex;
+
+
 
 public:
-    Garage(float width, float height) {
+    Garage(float width, float height): sprite(texture){
+        if (!font.openFromFile("./assets/arial.ttf")) {
+            std::cerr << "Failed to load font!" << std::endl;
+            std::abort(); // Abort if the font fails to load
+        }
+        if (!texture.loadFromFile("assets/hangar_background.jpg"))
+            std::cout << "Not loaded file\n";
+        sprite.setTextureRect(sf::IntRect({0, 0},{int(width), int(height)}));
+        std::vector<std::string> missions = {"Mision 1", "Mision 2", "Mision 3", "Mision 4"};
+        for (int i = 0; i < missions.size(); ++i) {
+            sf::Text text(font, missions[i], 30);
+            text.setStyle(sf::Text::Bold);
+            text.setFillColor(sf::Color::Green);
+            text.setPosition(sf::Vector2f(width-300, height / (missions.size() + 5) * (i + 1.5)));
 
+            HangarItems.push_back(text);
+
+        }
+        selectedItemIndex = 0;
+        HangarItems[selectedItemIndex].setFillColor(sf::Color::Red);
     }
-    void draw(sf::RenderWindow &window) {
-        std::cout << "test";
+    void Draw(sf::RenderWindow &window) {
+        window.draw(sprite);
+        for (int i = 0; i < HangarItems.size(); i++)
+        {
+            sf::Text blurredText = HangarItems[i];
+            blurredText.setFillColor(sf::Color(255, 255, 255, 50));
+            for (int x = -4; x <= 4; ++x) {
+                for (int y = -4; y <= 4; ++y) {
+                    if (x != 0 || y != 0) {
+                        blurredText.setPosition(HangarItems[i].getPosition() + sf::Vector2f(x, y));
+                        window.draw(blurredText);
+                    }
+                }
+            }
+            window.draw(HangarItems[i]);
+        }
+    }
+    void moveUp() {
+        if (selectedItemIndex - 1 >= 0) {
+            HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
+            selectedItemIndex--;
+            HangarItems[selectedItemIndex].setFillColor(sf::Color::Red);
+        }
     }
 
-
-
-
+    void moveDown() {
+        if (selectedItemIndex + 1 < HangarItems.size()) {
+            HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
+            selectedItemIndex++;
+            HangarItems[selectedItemIndex].setFillColor(sf::Color::Red);
+        }
+    }
+    int getSelectedItemIndex() {
+        return selectedItemIndex;
+    }
 
 };
 
 int main()
 {   // NOTE: empty texture used later to use map
     sf::Texture TileSheet;
-    
     std::fstream tel("config/maps.json");
     json test = json::parse(tel);
-
     auto v = test["Map1"].get<std::vector<int>>();
     int MaxWidth = test["Width1"];
     int MaxHeight = test["Height1"];
-    
-    Map testowa(MaxWidth, MaxHeight, v, TileSheet);
-
-
-
+    Map MapaNr1(MaxWidth, MaxHeight, v, TileSheet);
+    v = test["Map2"].get<std::vector<int>>();
+    MaxWidth = test["Width2"];
+    MaxHeight = test["Height2"];
+    Map MapaNr2(MaxWidth, MaxHeight, v, TileSheet);
+    v = test["Map3"].get<std::vector<int>>();
+    MaxWidth = test["Width3"];
+    MaxHeight = test["Height3"];
+    Map MapaNr3(MaxWidth, MaxHeight, v, TileSheet);
+    v = test["Map4"].get<std::vector<int>>();
+    MaxWidth = test["Width4"];
+    MaxHeight = test["Height4"];
+    Map MapaNr4(MaxWidth, MaxHeight, v, TileSheet);
 
     // NOTE: config.json is a config file (wow) that contains width, height and framerate 
     std::fstream f("./config/settings.json");
@@ -139,7 +198,10 @@ int main()
     Menu menu(window.getSize().x, window.getSize().y, settings);
     std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
     bool showMenu = true;
-    int level = 1;
+    int level = -1;
+
+    Garage gar(window.getSize().x, window.getSize().y);
+
     // INFO: 0 - garaż, 1-4 - aktywne poziomy
 
     while (window.isOpen()) {
@@ -147,18 +209,22 @@ int main()
             if (event->is<sf::Event::Closed>()) {
                 std::cout << "[PNZ] Window close event detected." << std::endl;
                 window.close();
-            } else if (event->is<sf::Event::KeyPressed>() && showMenu) {
+            }
+            if (event->is<sf::Event::KeyPressed>() && showMenu) {
                 const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
-                if (keyEvent->code == sf::Keyboard::Key::Up) {
+                if (keyEvent->code == sf::Keyboard::Key::Up)
                     menu.moveUp();
-                } else if (keyEvent->code == sf::Keyboard::Key::Down) {
+
+                if (keyEvent->code == sf::Keyboard::Key::Down)
                     menu.moveDown();
-                } else if (keyEvent->code == sf::Keyboard::Key::Enter) {
+
+                if (keyEvent->code == sf::Keyboard::Key::Enter) {
                     int selectedItem = menu.getSelectedItemIndex();
                     int currentPage = menu.getCurrentPageIndex();
                     if (selectedItem == 0 && currentPage == 0) {
                         std::cout << "[PNZ -> Menu] Selected: Campaign" << std::endl;
                         showMenu = false;
+                        level = 0;
                     } else if (selectedItem == 1 && currentPage == 0) {
                         std::cout << "[PNZ -> Menu] Selected: Options" << std::endl;
                         menu.setMenuPage(0, 1);
@@ -182,33 +248,76 @@ int main()
                     }
                 }
             }
+            if (event->is<sf::Event::KeyPressed>() && level == 0) {
+                const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
+                if (keyEvent->code == sf::Keyboard::Key::Up)
+                    gar.moveUp();
+
+                if (keyEvent->code == sf::Keyboard::Key::Down)
+                    gar.moveDown();
+
+                if (keyEvent->code == sf::Keyboard::Key::N) {
+                    int selectedItem = gar.getSelectedItemIndex();
+                    if (selectedItem == 0) {
+                        std::cout << "Mission 1" << std::endl;
+                        level = 1;
+                    } else if (selectedItem == 1) {
+                        std::cout << "Mission 2" << std::endl;
+                        level = 2;
+
+                    } else if (selectedItem == 2) {
+                        std::cout << "Mission 3" << std::endl;
+                        level = 3;
+                    } else if (selectedItem == 3) {
+                        std::cout << "Mission 4" << std::endl;
+                        level = 4;
+
+                    }
+                }
+            }
         }
 
         window.clear();
+
         if (showMenu) {
             menu.draw(window);
         } else {
 
             if(level == 0) {
-                
+                gar.Draw(window);
+            }
+            else {
+                int positionX = view1.getCenter().x;
+                int positionY = view1.getCenter().y;
+                float MovingValue = 5.f;
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
+                    view1.move({-MovingValue, 0});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
+                    view1.move({0, -MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
+                    view1.move({0, MovingValue});
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
+                    view1.move({MovingValue, 0});
+
             }
             if(level == 1) {
-            int positionX = view1.getCenter().x;
-            int positionY = view1.getCenter().y;
-            float MovingValue = 5.f;
-
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
-                view1.move({-MovingValue, 0});
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) && positionY > 0)
-                view1.move({0, -MovingValue});
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) && positionY < MaxHeight*64)
-                view1.move({0, MovingValue});
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) && positionX < MaxWidth*64)
-                view1.move({MovingValue, 0});    
-
-            window.setView(view1);
-            testowa.DrawTheLevel(window);
+                window.setView(view1);
+                MapaNr1.DrawTheLevel(window);
             }
+            if(level == 2) {
+               window.setView(view1);
+                MapaNr2.DrawTheLevel(window);
+            }
+            if(level == 3) {
+                window.setView(view1);
+                MapaNr3.DrawTheLevel(window);
+            }
+            if(level == 4) {
+               window.setView(view1);
+               MapaNr4.DrawTheLevel(window);
+            }
+
         }
         window.display();
     }
