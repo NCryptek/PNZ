@@ -10,10 +10,10 @@ public:
     void draw(sf::RenderWindow &window);
     void moveUp();
     void moveDown();
-    int getSelectedItemIndex() const;
-    void setSelectedItemIndex(int index);
-    void setCurrentPageIndex(int index);
+    void setMenuPage(int index, int menuPage);
+    void setSetting(int settingType, sf::RenderWindow& window);
     int getCurrentPageIndex() const;
+    int getSelectedItemIndex() const;
 
 private:
     int selectedItemIndex;
@@ -21,7 +21,7 @@ private:
     sf::Font font;
     sf::Texture backgroundTexture;
     sf::Sprite backgroundSprite;
-    std::vector<sf::Text> menuItems;
+    std::vector<sf::Text> mainItems;
     std::vector<sf::Text> settingsItems;
     nlohmann::json& settings;
 };
