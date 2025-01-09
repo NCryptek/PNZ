@@ -27,14 +27,15 @@ class Unit {
     int id;
     int idOwner;
     int maxHealth;
-    int Health;
     int damage;
     int range;
+    int maxMovement;
     int movement;
     int damageType;
     int armorType;
 public:
     int x;
+    int Health;
     int y;
     int movePoints;
     Unit(std::string NAME, int ID, int IDOwner, int MAXHEALTH, int DAMAGE, int RANGE, int MOVEMENT, int DT, int AT, int X, int Y, sf::Texture &UnitTexture):  sprite(UnitTexture) {
@@ -64,12 +65,13 @@ public:
             damage = DAMAGE;
             range = RANGE;
             movement = MOVEMENT;
+            maxMovement = movement;
             damageType = DT;
             armorType = AT;
-            movePoints = 2;
+            movePoints = 1;
             x = X;
             y = Y;
-            UnitMap[x][y] = id;
+            UnitMap[x][y] = idOwner;
         }
     }
     void takeDamage(int dmg, int dT) {
@@ -81,31 +83,33 @@ public:
     int GetOwnerID() {
         return idOwner;
     }
-    void moveTo(int X, int Y) {
+    void move(int X, int Y, int maxX, int maxY) {
         if (movePoints < 1)
             return;
-        int dist = (abs(X-x) + abs (Y-y));
-        if (dist > movement)
+        if(movement < 1)
             return;
-        if (isOccupied(X, Y))
+        if (isOccupied(x+X, y+Y))
+            return;
+        if(x+X > maxX-1 || y+Y > maxY-1 || y+Y < 0 || x+X < 0)
             return;
         UnitMap[x][y] = 0;
-        x = X;
-        y = Y;
+        x += X;
+        y += Y;
         UnitMap[x][y] = idOwner;
-        movePoints -= 1;
-        sprite.setPosition({float(X*64), float(Y*64)});
+        movement-=1;
+        sprite.setPosition({float(x*64), float(y*64)});
     }
     void Attack(Unit enemy) {
         if (movePoints < 1)
             return;
-        int dist = (abs(enemy.x-x) + abs (enemy.y-y));
+        int dist = (abs(enemy.x-x)/64 + abs (enemy.y-y))/64;
         if(dist>range)
             return;
         if(enemy.GetOwnerID() == idOwner)
             return;
         enemy.takeDamage(damage, damageType);
         movePoints -= 1;
+
     }
     void DrawUnit(sf::RenderWindow &window) {
         window.draw(sprite);
@@ -123,6 +127,12 @@ public:
     void UpgradeDamage(int newDamage) {
         damage = newDamage;
     }
+    void resetMoveAndAtack() {
+        movePoints = 1;
+        movement = maxMovement;
+
+    }
+
 };
 
 
@@ -273,6 +283,14 @@ int main()
 {   // NOTE: empty texture used later to use map
     sf::Texture TileSheet;
     sf::Texture TankUnit;
+
+
+
+
+    sf::Texture PlayerCursor("assets/unit.jpg");
+    sf::Sprite SpritePlayerCursor(PlayerCursor);
+    SpritePlayerCursor.setTextureRect(sf::IntRect({256, 256},{64, 64}));
+    SpritePlayerCursor.setPosition({0,0});
     // NOTE: MAPS:
     std::fstream tel("config/maps.json");
     json test = json::parse(tel);
@@ -296,16 +314,16 @@ int main()
     int currentSelected = 0;
     int PlayerMoney = 20;
     std::vector<Unit> PlayerUnits;
-    PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
+    PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 16, 2, 3, 1, 0, 1, TankUnit));
     PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
     PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
     PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
     // NOTE: ENEMY:
     std::vector<Unit> EnemyUnits;
-    EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
-    EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
-    EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
-    EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+    EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 5, 1, TankUnit));
+    EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 5, 2, TankUnit));
+    EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 5, 3, TankUnit));
+    EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 5, 4, TankUnit));
     
 
     // NOTE: config.json is a config file (wow) that contains width, height and framerate 
@@ -336,7 +354,14 @@ int main()
     std::cout << "[PNZ] Menu succesful loaded!" << std::endl;
     bool showMenu = true;
     int level = -1;
-
+    int state = 0;
+    // 1 - Attack;
+    // 2 - move;
+    // 0 - choosing unit;
+    // 4 - next player;
+    int currentPlayer = 1;
+    // 1 - player
+    // -1 - enemy
     Garage gar(window.getSize().x, window.getSize().y);
 
     // INFO: 0 - garaż, 1-4 - aktywne poziomy
@@ -420,7 +445,6 @@ int main()
                 }
             }
         }
-
         window.clear();
 
         if (showMenu) {
@@ -442,14 +466,138 @@ int main()
                 window.setView(view1);
                 MapaNr4.DrawTheLevel(window);
             }
+            if (EnemyUnits.size() == 0)
+            {
+                level = 0;
+                PlayerMoney +=5;
+                EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
+                EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
+                EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
+                EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+                PlayerUnits.clear();
+                PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
+                PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
+                PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
+                PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+
+            };
+            if (PlayerUnits.size() == 0)
+            {
+                level = 0;
+                PlayerMoney -=5;
+                EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
+                EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
+                EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
+                EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+                EnemyUnits.clear();
+                PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
+                PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
+                PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
+                PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+
+            };
 
             if(level == 0) {
                 gar.Draw(window);
             }
             else {
+                if(state == 4) {
+                    sf::sleep(sf::milliseconds(200));
+                    state = 0;
+                    currentPlayer *= -1;
+                }
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1) && state == 0)
+                    currentSelected = 0;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2) && state == 0)
+                    currentSelected = 1;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3) && state == 0)
+                    currentSelected = 2;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4) && state == 0)
+                    currentSelected = 3;
                 int positionX = view1.getCenter().x;
                 int positionY = view1.getCenter().y;
                 float MovingValue = 5.f;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::X))
+                    state = 2;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Z))
+                    state = 1;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
+                    state = 0;
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V))
+                    state = 4;
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && state == 2) {
+                    if(currentPlayer == 1) {
+                        PlayerUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                    if(currentPlayer == -1) {
+                        EnemyUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && state == 2) {
+                    if(currentPlayer == 1) {
+                        PlayerUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                    if(currentPlayer == -1) {
+                        EnemyUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && state == 2) {
+                    if(currentPlayer == 1) {
+                        PlayerUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                    if(currentPlayer == -1) {
+                        EnemyUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) && state == 2) {
+                    if(currentPlayer == 1) {
+                        PlayerUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                    if(currentPlayer == -1) {
+                        EnemyUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
+                        sf::sleep(sf::milliseconds(200));
+                    }
+                }
+
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && state == 1) {
+                    SpritePlayerCursor.move({0, -64});
+                    sf::sleep(sf::milliseconds(200));
+                }
+                        
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && state == 1) {
+                    SpritePlayerCursor.move({0, 64});
+                    sf::sleep(sf::milliseconds(200));
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && state == 1) {
+                    SpritePlayerCursor.move({-64, 0});
+                    sf::sleep(sf::milliseconds(200));
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) && state == 1) {
+                    SpritePlayerCursor.move({64, 0});
+                    sf::sleep(sf::milliseconds(200));
+                }
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter) && state == 1) {
+                    float tmpa = SpritePlayerCursor.getPosition().x/64;
+                    float tmpb = SpritePlayerCursor.getPosition().y/64;
+                    if(currentPlayer == 1) {
+                        for (int i = 0; i < EnemyUnits.size(); i++) {
+                            if (tmpa == EnemyUnits[i].x && tmpb == EnemyUnits[i].y) {
+                                PlayerUnits[currentSelected].Attack(EnemyUnits[i]);
+                            }
+                        }
+                    sf::sleep(sf::milliseconds(200));
+                    }
+                }
+
 
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) && positionX > 0)
                     view1.move({-MovingValue, 0});
@@ -461,6 +609,12 @@ int main()
                     view1.move({MovingValue, 0});
                 for (int i = 0; i < PlayerUnits.size(); i++) {
                     PlayerUnits[i].DrawUnit(window);
+                }
+                for (int i = 0; i < EnemyUnits.size(); i++) {
+                    EnemyUnits[i].DrawUnit(window);
+                }
+                if(state == 1) {
+                    window.draw(SpritePlayerCursor);
                 }
             }
         }
