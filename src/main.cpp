@@ -152,22 +152,22 @@ int main() {
                 if (keyEvent->code == sf::Keyboard::Key::N) {
                     int selectedItem = gar.getSelectedItemIndex();
                     if (selectedItem == 0) {
-                        std::cout << "Mission 1" << std::endl;
+                        std::cout << "[PNZ -> Missions] Loading 1" << std::endl;
                         MaxWidth = test["Width1"];
                         MaxHeight = test["Height1"];
                         level = 1;
                     } else if (selectedItem == 1) {
-                        std::cout << "Mission 2" << std::endl;
+                        std::cout << "[PNZ -> Missions] Loading 2" << std::endl;
                         MaxWidth = test["Width2"];
                         MaxHeight = test["Height2"];
                         level = 2;
                     } else if (selectedItem == 2) {
-                        std::cout << "Mission 3" << std::endl;
+                        std::cout << "[PNZ -> Missions] Loading 3" << std::endl;
                         MaxWidth = test["Width3"];
                         MaxHeight = test["Height3"];
                         level = 3;
                     } else if (selectedItem == 3) {
-                        std::cout << "Mission 4" << std::endl;
+                        std::cout << "[PNZ -> Missions] Loading 4" << std::endl;
                         MaxWidth = test["Width4"];
                         MaxHeight = test["Height4"];
                         level = 4;
@@ -255,8 +255,10 @@ int main() {
                     state = 1;
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
                     state = 0;
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V))
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V)) { 
                     state = 4;
+                    PlayerUnits[currentSelected].resetMoveAndAtack();
+                }
 
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && state == 2) {
                     if(currentPlayer == 1) {
