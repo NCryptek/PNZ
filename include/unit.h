@@ -32,7 +32,7 @@ public:
     void takeDamage(int dmg, int dT);
     int GetOwnerID();
     void move(int X, int Y, int maxX, int maxY);
-    void Attack(Unit enemy);
+    void Attack(Unit &enemy);
     void DrawUnit(sf::RenderWindow &window);
     void UpgradeHealth(int newHealth);
     void UpgradeRange(int newRange);

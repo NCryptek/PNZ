@@ -22,36 +22,33 @@ Unit::Unit(std::string NAME, int ID, int IDOwner, int MAXHEALTH, int DAMAGE, int
             sprite.setPosition({float(X*64), float(Y*64)});
         }
         if(ID == 2) {
-            // sprite.setTextureRect(sf::IntRect({64, 0},{64, 64}));
             sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
             sprite.setPosition({float(X*64), float(Y*64)});
         }
-        if(ID == 3) {
-            sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
-            sprite.setPosition({float(X*64), float(Y*64)});
-        }
-        if(ID == 4) {
-            // sprite.setTextureRect(sf::IntRect({64, 0},{64, 64}));
-            sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
-            sprite.setPosition({float(X*64), float(Y*64)});
-        }
+    if(ID == 3) {
+        sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
+        sprite.setPosition({float(X*64), float(Y*64)});
+    }
+    if(ID == 4) {
+        sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
+        sprite.setPosition({float(X*64), float(Y*64)});
+    }
 
-        Name = NAME;
-        id = ID;
-        idOwner = IDOwner;
-        maxHealth = MAXHEALTH;
-        Health = maxHealth;
-        damage = DAMAGE;
-        range = RANGE;
-        movement = MOVEMENT;
-        maxMovement = movement;
-        damageType = DT;
-        armorType = AT;
-        movePoints = 1;
-        x = X;
-        y = Y;
-        UnitMap[x][y] = idOwner;
-    // }
+    Name = NAME;
+    id = ID;
+    idOwner = IDOwner;
+    maxHealth = MAXHEALTH;
+    Health = maxHealth;
+    damage = DAMAGE;
+    range = RANGE;
+    movement = MOVEMENT;
+    maxMovement = movement;
+    damageType = DT;
+    armorType = AT;
+    movePoints = 1;
+    x = X;
+    y = Y;
+    UnitMap[x][y] = idOwner;
 }
 
 void Unit::takeDamage(int dmg, int dT) {
@@ -82,7 +79,7 @@ void Unit::move(int X, int Y, int maxX, int maxY) {
     sprite.setPosition({float(x*64), float(y*64)});
 }
 
-void Unit::Attack(Unit enemy) {
+void Unit::Attack(Unit &enemy) {
     if (movePoints < 1)
         return;
     int dist = (abs(enemy.x-x)/64 + abs (enemy.y-y))/64;
