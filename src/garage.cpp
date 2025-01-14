@@ -21,7 +21,7 @@ Garage::Garage(float width, float height): sprite(texture){
         }
     
     selectedItemIndex = 0;
-    HangarItems[selectedItemIndex].setFillColor(sf::Color::Red);
+    HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
 }
 
 
@@ -44,17 +44,17 @@ void Garage::Draw(sf::RenderWindow &window) {
 
 void Garage::moveUp() {
     if (selectedItemIndex - 1 >= 0) {
-        HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
+        HangarItems[selectedItemIndex].setFillColor(sf::Color::Black);
         selectedItemIndex--;
-        HangarItems[selectedItemIndex].setFillColor(sf::Color::Red);
+        HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
     }
 }
 
 void Garage::moveDown() {
     if (selectedItemIndex + 1 < HangarItems.size()) {
-        HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
+        HangarItems[selectedItemIndex].setFillColor(sf::Color::Black);
         selectedItemIndex++;
-        HangarItems[selectedItemIndex].setFillColor(sf::Color::Red);
+        HangarItems[selectedItemIndex].setFillColor(sf::Color::Green);
     }
 }
 int Garage::getSelectedItemIndex() {
