@@ -17,6 +17,13 @@
 // JSON
 using json = nlohmann::json;
 
+// IsBlocked.. i dont have time to make it better xd
+bool isBlocked(int x, int y, int cols, const std::vector<int>& map) {
+    int index = y * cols + x;
+    if (map[index] == 1) return true;  
+    return false;  
+}
+
 // Function Main - CORE GAME
 int main() {   
     // NOTE: Empty texture used later to use map
@@ -43,20 +50,20 @@ int main() {
     int MaxHeight = test["Height1"];
     Map MapaNr1(MaxWidth, MaxHeight, v, TileSheet1);
 
-    v = test["Map2"].get<std::vector<int>>();
+    auto v2 = test["Map2"].get<std::vector<int>>();
     MaxWidth = test["Width2"];
     MaxHeight = test["Height2"];
-    Map MapaNr2(MaxWidth, MaxHeight, v, TileSheet2);
+    Map MapaNr2(MaxWidth, MaxHeight, v2, TileSheet2);
 
-    v = test["Map3"].get<std::vector<int>>();
+    auto v3 = test["Map3"].get<std::vector<int>>();
     MaxWidth = test["Width3"];
     MaxHeight = test["Height3"];
-    Map MapaNr3(MaxWidth, MaxHeight, v, TileSheet3);
+    Map MapaNr3(MaxWidth, MaxHeight, v3, TileSheet3);
 
-    v = test["Map4"].get<std::vector<int>>();
+    auto v4 = test["Map4"].get<std::vector<int>>();
     MaxWidth = test["Width4"];
     MaxHeight = test["Height4"];
-    Map MapaNr4(MaxWidth, MaxHeight, v, TileSheet4);
+    Map MapaNr4(MaxWidth, MaxHeight, v4, TileSheet4);
 
     // NOTE: Player Data:
     int currentSelected = 0;
@@ -111,6 +118,7 @@ int main() {
     // 1 - player
     // -1 - enemy
     Garage gar(window.getSize().x, window.getSize().y);
+    std::string levelName = "Map1";
 
     // INFO: 0 - garage, 1-4 - active levels
 
@@ -158,6 +166,20 @@ int main() {
                     }
                 }
             }
+
+            // if (event->is<sf::Event::KeyPressed>()) { 
+            //     const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
+            //     if (keyEvent->code == sf::Keyboard::Key::Escape) { 
+            //         view1.move({0, 0});
+            //         window.setView(view1);
+            //         menu.~Menu();
+            //         new (&menu) Menu(window.getSize().x, window.getSize().y, settings);
+            //         menu.setMenuPage(0, 0);
+            //         level = 0;
+            //         showMenu = true;
+            //     }
+            // }
+
             if (event->is<sf::Event::KeyPressed>() && level == 0) {
                 const auto& keyEvent = event->getIf<sf::Event::KeyPressed>();
                 if (keyEvent->code == sf::Keyboard::Key::Up)
@@ -237,21 +259,25 @@ int main() {
 
         if (showMenu) {
             menu.draw(window);
-        } else {
+        } else {  
             if(level == 1) {
                 window.setView(view1);
+                levelName = "Map1";
                 MapaNr1.DrawTheLevel(window);
             }
             if(level == 2) {
                 window.setView(view1);
+                levelName = "Map2";
                 MapaNr2.DrawTheLevel(window);
             }
             if(level == 3) {
                 window.setView(view1);
+                levelName = "Map3";
                 MapaNr3.DrawTheLevel(window);
             }
             if(level == 4) {
                 window.setView(view1);
+                levelName = "Map4";
                 MapaNr4.DrawTheLevel(window);
             }
             if (EnemyUnits.size() == 0)
@@ -319,43 +345,60 @@ int main() {
                 }
 
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && state == 2) {
+
                     if(currentPlayer == 1) {
-                        PlayerUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(PlayerUnits[currentSelected].x, PlayerUnits[currentSelected].y - 1, 7, v)) { 
+                            PlayerUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        };
                     }
                     if(currentPlayer == -1) {
-                        EnemyUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(EnemyUnits[currentSelected].x, EnemyUnits[currentSelected].y - 1, 7, v)) { 
+                            EnemyUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && state == 2) {
                     if(currentPlayer == 1) {
-                        PlayerUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(PlayerUnits[currentSelected].x, PlayerUnits[currentSelected].y + 1, 7, v)) { 
+                            PlayerUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                     if(currentPlayer == -1) {
-                        EnemyUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(EnemyUnits[currentSelected].x, EnemyUnits[currentSelected].y + 1, 7, v)) { 
+                            EnemyUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && state == 2) {
                     if(currentPlayer == 1) {
-                        PlayerUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(PlayerUnits[currentSelected].x - 1, PlayerUnits[currentSelected].y, 7, v)) { 
+                            PlayerUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                     if(currentPlayer == -1) {
-                        EnemyUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(EnemyUnits[currentSelected].x - 1, EnemyUnits[currentSelected].y, 7, v)) { 
+                            EnemyUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) && state == 2) {
                     if(currentPlayer == 1) {
-                        PlayerUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(PlayerUnits[currentSelected].x + 1, PlayerUnits[currentSelected].y, 7, v)) { 
+                            PlayerUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                     if(currentPlayer == -1) {
-                        EnemyUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
-                        sf::sleep(sf::milliseconds(200));
+                        if (!isBlocked(EnemyUnits[currentSelected].x + 1, EnemyUnits[currentSelected].y, 7, v)) { 
+                            EnemyUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
+                            sf::sleep(sf::milliseconds(200));
+                        }
                     }
                 }
 
