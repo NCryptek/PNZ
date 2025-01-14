@@ -19,9 +19,29 @@ using json = nlohmann::json;
 
 // IsBlocked.. i dont have time to make it better xd
 bool isBlocked(int x, int y, int cols, const std::vector<int>& map) {
+    if (x < 0 || x >= cols || y < 0 || y >= map.size() / cols) {
+        return true;  
+    }
     int index = y * cols + x;
-    if (map[index] == 1) return true;  
-    return false;  
+    return map[index] == 1;
+}
+
+
+std::vector<int> v, v2, v3, v4;
+
+// GetMapByName.. i dont have time to make it better xd
+std::vector<int>& getMapDataByName(const std::string& mapName) {
+    if (mapName == "Map1") {
+        return v;
+    } else if (mapName == "Map2") {
+        return v2;
+    } else if (mapName == "Map3") {
+        return v3;
+    } else if (mapName == "Map4") {
+        return v4;
+    } else {
+        throw std::runtime_error("Map not found");
+    }
 }
 
 // Function Main - CORE GAME
@@ -45,22 +65,22 @@ int main() {
     std::fstream tel("config/maps.json");
     json test = json::parse(tel);
 
-    auto v = test["Map1"].get<std::vector<int>>();
+    v = test["Map1"].get<std::vector<int>>();
     int MaxWidth = test["Width1"];
     int MaxHeight = test["Height1"];
     Map MapaNr1(MaxWidth, MaxHeight, v, TileSheet1);
 
-    auto v2 = test["Map2"].get<std::vector<int>>();
+    v2 = test["Map2"].get<std::vector<int>>();
     MaxWidth = test["Width2"];
     MaxHeight = test["Height2"];
     Map MapaNr2(MaxWidth, MaxHeight, v2, TileSheet2);
 
-    auto v3 = test["Map3"].get<std::vector<int>>();
+    v3 = test["Map3"].get<std::vector<int>>();
     MaxWidth = test["Width3"];
     MaxHeight = test["Height3"];
     Map MapaNr3(MaxWidth, MaxHeight, v3, TileSheet3);
 
-    auto v4 = test["Map4"].get<std::vector<int>>();
+    v4 = test["Map4"].get<std::vector<int>>();
     MaxWidth = test["Width4"];
     MaxHeight = test["Height4"];
     Map MapaNr4(MaxWidth, MaxHeight, v4, TileSheet4);
@@ -194,12 +214,13 @@ int main() {
                         std::cout << "[PNZ -> Missions] Loading 1" << std::endl;
                         MaxWidth = test["Width1"];
                         MaxHeight = test["Height1"];
+                        levelName = "Map1";
                         level = 1;
                         PlayerUnits.clear();
-                        PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 16, 2, 3, 1, 0, 6, TankTexture));
-                        PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 5, HoverTankTexture));
-                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 4, MechTexture));
-                        PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 3, HeavyTankTexture));
+                        PlayerUnits.push_back(Unit("Tank",      4, 1, 20, 10, 16, 2, 3, 1, 0, 6, TankTexture));
+                        PlayerUnits.push_back(Unit("HoverTank", 3, 1, 15, 4, 3, 5, 1, 0, 0, 5, HoverTankTexture));
+                        PlayerUnits.push_back(Unit("Mech",      2, 1, 25, 6, 2, 3, 2, 0, 0, 4, MechTexture));
+                        PlayerUnits.push_back(Unit("HeavyTank", 1, 1, 30, 5, 4, 2, 3, 1, 0, 3, HeavyTankTexture));
                         EnemyUnits.clear();
                         EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 6, 0, TankTexture));
                         EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 6, 1, HoverTankTexture));
@@ -210,31 +231,33 @@ int main() {
                         MaxWidth = test["Width2"];
                         MaxHeight = test["Height2"];
                         level = 2;
+                        levelName = "Map2";
                         PlayerUnits.clear();
-                        PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+                        PlayerUnits.push_back(Unit("HoverTank", 1, 1, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
                         PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 3, HoverTankTexture));
                         PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 4, MechTexture));
                         PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 5, HeavyTankTexture));
                         EnemyUnits.clear();
                         EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 6, 1, TankTexture));
                         EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 4, 1, TankTexture));
-                        EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 6, 3, TankTexture));
-                        EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 4, 5, MechTexture));
-                        EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 6, 5, HeavyTankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 3, 2, 15, 4, 3, 5, 1, 0, 6, 3, TankTexture));
+                        EnemyUnits.push_back(Unit("Mech",      4, 2, 25, 6, 2, 3, 2, 0, 4, 5, MechTexture));
+                        EnemyUnits.push_back(Unit("HeavyTank", 5, 2, 30, 5, 4, 2, 3, 1, 6, 5, HeavyTankTexture));
                     } else if (selectedItem == 2) {
                         std::cout << "[PNZ -> Missions] Loading 3" << std::endl;
                         MaxWidth = test["Width3"];
                         MaxHeight = test["Height3"];
                         level = 3;
+                        levelName = "Map3";
                         PlayerUnits.clear();
-                        PlayerUnits.push_back(Unit("Mech", 2, 1, 15, 4, 3, 5, 1, 0, 0, 0, MechTexture));
-                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 2, 1, MechTexture));
+                        PlayerUnits.push_back(Unit("Mech", 1, 1, 15, 4, 3, 5, 1, 0, 0, 0, MechTexture));
+                        PlayerUnits.push_back(Unit("Mech",      2, 1, 25, 6, 2, 3, 2, 0, 2, 1, MechTexture));
                         PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 1, 3, MechTexture));
-                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 5, MechTexture));
+                        PlayerUnits.push_back(Unit("Mech",      4, 1, 25, 6, 2, 3, 2, 0, 0, 5, MechTexture));
                         EnemyUnits.clear();
-                        EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 5, 0, HeavyTankTexture));
+                        EnemyUnits.push_back(Unit("HeavyTank", 1, 2, 30, 5, 4, 2, 3, 1, 5, 0, HeavyTankTexture));
                         EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 4, 3, TankTexture));
-                        EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 4, 2, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 3, 2, 15, 4, 3, 5, 1, 0, 4, 2, TankTexture));
                         EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 6, 1, HeavyTankTexture));
                     } else if (selectedItem == 3) {
                         std::cout << "[PNZ -> Missions] Loading 4" << std::endl;
@@ -242,15 +265,16 @@ int main() {
                         MaxHeight = test["Height4"];
                         level = 4;
                         EnemyUnits.clear();
-                        EnemyUnits.push_back(Unit("Tank", 2, 1, 15, 4, 3, 5, 1, 0, 1, 0, TankTexture));
-                        EnemyUnits.push_back(Unit("Tank",      3, 1, 25, 6, 2, 3, 2, 0, 0, 1, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 1, 1, 15, 4, 3, 5, 1, 0, 1, 0, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank",      2, 1, 25, 6, 2, 3, 2, 0, 0, 1, TankTexture));
                         EnemyUnits.push_back(Unit("HoverTank",      3, 1, 25, 6, 2, 3, 2, 0, 1, 1, HoverTankTexture));
-                        EnemyUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 6, MechTexture));
+                        EnemyUnits.push_back(Unit("Mech",      4, 1, 25, 6, 2, 3, 2, 0, 0, 6, MechTexture));
                         EnemyUnits.clear();
-                        EnemyUnits.push_back(Unit("Tank", 2, 1, 15, 4, 3, 5, 1, 0, 6, 2, TankTexture));
-                        EnemyUnits.push_back(Unit("Tank",      3, 1, 25, 6, 2, 3, 2, 0, 6, 3, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 1, 1, 15, 4, 3, 5, 1, 0, 6, 2, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank",      2, 1, 25, 6, 2, 3, 2, 0, 6, 3, TankTexture));
                         EnemyUnits.push_back(Unit("HoverTank",      3, 1, 25, 6, 2, 3, 2, 0, 6, 4, HoverTankTexture));
-                        EnemyUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 5, 6, MechTexture));
+                        EnemyUnits.push_back(Unit("Mech",      4, 1, 25, 6, 2, 3, 2, 0, 5, 6, MechTexture));
+                        levelName = "Map4";
                     }
                 }
             }
@@ -262,22 +286,18 @@ int main() {
         } else {  
             if(level == 1) {
                 window.setView(view1);
-                levelName = "Map1";
                 MapaNr1.DrawTheLevel(window);
             }
             if(level == 2) {
                 window.setView(view1);
-                levelName = "Map2";
                 MapaNr2.DrawTheLevel(window);
             }
             if(level == 3) {
                 window.setView(view1);
-                levelName = "Map3";
                 MapaNr3.DrawTheLevel(window);
             }
             if(level == 4) {
                 window.setView(view1);
-                levelName = "Map4";
                 MapaNr4.DrawTheLevel(window);
             }
             if (EnemyUnits.size() == 0)
@@ -347,58 +367,58 @@ int main() {
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && state == 2) {
 
                     if(currentPlayer == 1) {
-                        if (!isBlocked(PlayerUnits[currentSelected].x, PlayerUnits[currentSelected].y - 1, 7, v)) { 
+                        if (!isBlocked(PlayerUnits[currentSelected].x, PlayerUnits[currentSelected].y - 1, 8, getMapDataByName(levelName))) { 
                             PlayerUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        };
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                     if(currentPlayer == -1) {
-                        if (!isBlocked(EnemyUnits[currentSelected].x, EnemyUnits[currentSelected].y - 1, 7, v)) { 
+                        if (!isBlocked(EnemyUnits[currentSelected].x, EnemyUnits[currentSelected].y - 1, 7, getMapDataByName(levelName))) { 
                             EnemyUnits[currentSelected].move(0, -1, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) && state == 2) {
                     if(currentPlayer == 1) {
-                        if (!isBlocked(PlayerUnits[currentSelected].x, PlayerUnits[currentSelected].y + 1, 7, v)) { 
+                        if (!isBlocked(PlayerUnits[currentSelected].x, PlayerUnits[currentSelected].y + 1, 7, getMapDataByName(levelName))) { 
                             PlayerUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                     if(currentPlayer == -1) {
-                        if (!isBlocked(EnemyUnits[currentSelected].x, EnemyUnits[currentSelected].y + 1, 7, v)) { 
+                        if (!isBlocked(EnemyUnits[currentSelected].x, EnemyUnits[currentSelected].y + 1, 7, getMapDataByName(levelName))) { 
                             EnemyUnits[currentSelected].move(0, 1, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) && state == 2) {
                     if(currentPlayer == 1) {
-                        if (!isBlocked(PlayerUnits[currentSelected].x - 1, PlayerUnits[currentSelected].y, 7, v)) { 
+                        if (!isBlocked(PlayerUnits[currentSelected].x - 1, PlayerUnits[currentSelected].y, 7, getMapDataByName(levelName))) { 
                             PlayerUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                     if(currentPlayer == -1) {
-                        if (!isBlocked(EnemyUnits[currentSelected].x - 1, EnemyUnits[currentSelected].y, 7, v)) { 
+                        if (!isBlocked(EnemyUnits[currentSelected].x - 1, EnemyUnits[currentSelected].y, 7, getMapDataByName(levelName))) { 
                             EnemyUnits[currentSelected].move(-1, 0, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                 }
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) && state == 2) {
                     if(currentPlayer == 1) {
-                        if (!isBlocked(PlayerUnits[currentSelected].x + 1, PlayerUnits[currentSelected].y, 7, v)) { 
+                        if (!isBlocked(PlayerUnits[currentSelected].x + 1, PlayerUnits[currentSelected].y, 7, getMapDataByName(levelName))) { 
                             PlayerUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                     if(currentPlayer == -1) {
-                        if (!isBlocked(EnemyUnits[currentSelected].x + 1, EnemyUnits[currentSelected].y, 7, v)) { 
+                        if (!isBlocked(EnemyUnits[currentSelected].x + 1, EnemyUnits[currentSelected].y, 7, getMapDataByName(levelName))) { 
                             EnemyUnits[currentSelected].move(1, 0, MaxWidth, MaxHeight);
                             sf::sleep(sf::milliseconds(200));
-                        }
+                        } else std::cout << "[PNZ] Move blocked";
                     }
                 }
 
