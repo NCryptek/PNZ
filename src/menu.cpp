@@ -16,7 +16,7 @@ Menu::Menu(float width, float height, nlohmann::json& settings) : settings(setti
 
     int fontSize = static_cast<int>(std::min(width, height) * 0.05f);
 
-    std::vector<std::string> items = {"Select campaign", "Settings", "Exit"};
+    std::vector<std::string> items = {"Select Mission", "Settings", "Exit"};
     for (size_t i = 0; i < items.size(); ++i) {
         sf::Text text(font, items[i], fontSize);
         text.setStyle(sf::Text::Bold);
