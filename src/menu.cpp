@@ -1,7 +1,4 @@
-#include "../include/menu.h"
-#include <fstream>
-#include <iostream>
-#include <SFML/Graphics.hpp>
+#include "menu.h"
 
 Menu::Menu(float width, float height, nlohmann::json& settings) : settings(settings), backgroundTexture("./assets/menu_backgroundd.png"), backgroundSprite(backgroundTexture) {
     if (!font.openFromFile("./assets/arial.ttf")) {
