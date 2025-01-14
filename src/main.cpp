@@ -107,7 +107,7 @@ int main() {
     std::cout << "[PNZ] Config succesful loaded!" << std::endl;
 
     // NOTE: creating and setting up window 
-    auto window = sf::RenderWindow(sf::VideoMode({(settings["Screen_Width"]), (settings["Screen_Height"])}), "PNZ");
+    auto window = sf::RenderWindow(sf::VideoMode({(settings["Screen_Width"]), (settings["Screen_Height"])}), "Steel Commander");
     window.setFramerateLimit(int(settings["Framerate"]));
     std::cout << "[PNZ] Window succesful created and set!" << std::endl;
 

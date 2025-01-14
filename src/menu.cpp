@@ -1,6 +1,6 @@
 #include "menu.h"
 
-Menu::Menu(float width, float height, nlohmann::json& settings) : settings(settings), backgroundTexture("./assets/menu_backgroundd.png"), backgroundSprite(backgroundTexture) {
+Menu::Menu(float width, float height, nlohmann::json& settings) : settings(settings), backgroundTexture("./assets/menu_background.png"), backgroundSprite(backgroundTexture) {
     if (!font.openFromFile("./assets/arial.ttf")) {
         std::cerr << "Failed to load font!" << std::endl;
         std::abort(); // Abort if the font fails to load
@@ -40,7 +40,7 @@ Menu::Menu(float width, float height, nlohmann::json& settings) : settings(setti
     this->settings = settings;
 
     selectedItemIndex = 0;
-    mainItems[selectedItemIndex].setFillColor(sf::Color::Red);
+    mainItems[selectedItemIndex].setFillColor(sf::Color::Green);
 }
 
 void Menu::draw(sf::RenderWindow &window) {
@@ -87,14 +87,14 @@ void Menu::moveUp() {
         if (selectedItemIndex - 1 >= 0) {
             mainItems[selectedItemIndex].setFillColor(sf::Color::Black);
             selectedItemIndex--;
-            mainItems[selectedItemIndex].setFillColor(sf::Color::Red);
+            mainItems[selectedItemIndex].setFillColor(sf::Color::Green);
         }
     }
     if (currentPage == 1) { 
         if (selectedItemIndex - 1 >= 0) {
             settingsItems[selectedItemIndex].setFillColor(sf::Color::Black);
             selectedItemIndex--;
-            settingsItems[selectedItemIndex].setFillColor(sf::Color::Red);
+            settingsItems[selectedItemIndex].setFillColor(sf::Color::Green);
         }
     }
 }
@@ -105,14 +105,14 @@ void Menu::moveDown() {
         if (selectedItemIndex + 1 < settingsItems.size()) {
             settingsItems[selectedItemIndex].setFillColor(sf::Color::Black);
             selectedItemIndex++;
-            settingsItems[selectedItemIndex].setFillColor(sf::Color::Red);
+            settingsItems[selectedItemIndex].setFillColor(sf::Color::Green);
         }
     } 
     if (currentPage == 0) { 
         if (selectedItemIndex + 1 < mainItems.size()) {
             mainItems[selectedItemIndex].setFillColor(sf::Color::Black);
             selectedItemIndex++;
-            mainItems[selectedItemIndex].setFillColor(sf::Color::Red);
+            mainItems[selectedItemIndex].setFillColor(sf::Color::Green);
         }
     }
 }
@@ -127,11 +127,11 @@ void Menu::setMenuPage(int index, int menuPage) {
     currentPageIndex = menuPage;
     if (menuPage == 1) { 
         mainItems[oldIndex].setFillColor(sf::Color::Black);
-        settingsItems[index].setFillColor(sf::Color::Red);
+        settingsItems[index].setFillColor(sf::Color::Green);
     }   
     if (menuPage == 0) { 
         settingsItems[oldIndex].setFillColor(sf::Color::Black);
-        mainItems[index].setFillColor(sf::Color::Red);
+        mainItems[index].setFillColor(sf::Color::Green);
     }
 }
 
