@@ -1,3 +1,4 @@
+// General Imports
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -5,18 +6,30 @@
 #include <SFML/Window.hpp>
 #include <fstream>
 #include <nlohmann/json.hpp>
+
+// Project Imports
 #include "menu.h"
 #include "unit.h"
 #include "tile.h"
 #include "map.h"
 #include "garage.h"
+
+// JSON
 using json = nlohmann::json;
 
+// Function Main - CORE GAME
 int main() {   
     // NOTE: Empty texture used later to use map
-    sf::Texture TileSheet;
-    sf::Texture TankUnit;
-    sf::Texture PlayerCursor("assets/unit.jpg");
+    sf::Texture 
+        TankTexture("assets/units/Tank.png"), 
+        HoverTankTexture("assets/units/HoverTank.png"), 
+        MechTexture("assets/units/Mech.png"), 
+        HeavyTankTexture("assets/units/HeavyTank.png"), 
+        PlayerCursor("assets/Target.png"), 
+        TileSheet1("assets/ground1.png"),
+        TileSheet2("assets/ground2.png"),
+        TileSheet3("assets/ground3.png"),
+        TileSheet4("assets/ground4.png");
     sf::Sprite SpritePlayerCursor(PlayerCursor);
     SpritePlayerCursor.setTextureRect(sf::IntRect({256, 256},{64, 64}));
     SpritePlayerCursor.setPosition({0,0});
@@ -24,40 +37,44 @@ int main() {
     // NOTE: Current map list:
     std::fstream tel("config/maps.json");
     json test = json::parse(tel);
+
     auto v = test["Map1"].get<std::vector<int>>();
     int MaxWidth = test["Width1"];
     int MaxHeight = test["Height1"];
-    Map MapaNr1(MaxWidth, MaxHeight, v, TileSheet);
+    Map MapaNr1(MaxWidth, MaxHeight, v, TileSheet1);
+
     v = test["Map2"].get<std::vector<int>>();
     MaxWidth = test["Width2"];
     MaxHeight = test["Height2"];
-    Map MapaNr2(MaxWidth, MaxHeight, v, TileSheet);
+    Map MapaNr2(MaxWidth, MaxHeight, v, TileSheet2);
+
     v = test["Map3"].get<std::vector<int>>();
     MaxWidth = test["Width3"];
     MaxHeight = test["Height3"];
-    Map MapaNr3(MaxWidth, MaxHeight, v, TileSheet);
+    Map MapaNr3(MaxWidth, MaxHeight, v, TileSheet3);
+
     v = test["Map4"].get<std::vector<int>>();
     MaxWidth = test["Width4"];
     MaxHeight = test["Height4"];
-    Map MapaNr4(MaxWidth, MaxHeight, v, TileSheet);
-    
+    Map MapaNr4(MaxWidth, MaxHeight, v, TileSheet4);
+
     // NOTE: Player Data:
     int currentSelected = 0;
     int PlayerMoney = 20;
     std::vector<Unit> PlayerUnits;
-    PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 16, 2, 3, 1, 0, 1, TankUnit));
-    PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
-    PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
-    PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+    PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 16, 2, 3, 1, 0, 1, TankTexture));
+    PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+    PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, MechTexture));
+    PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, HeavyTankTexture));
     
     // NOTE: Enemy Data:
     std::vector<Unit> EnemyUnits;
-    EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 5, 1, TankUnit));
-    EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 5, 2, TankUnit));
-    EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 5, 3, TankUnit));
-    EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 5, 4, TankUnit));
-    
-    // NOTE: config.json is a config file (wow) that contains width, height and framerate 
+    EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 5, 1, TankTexture));
+    EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 5, 2, HoverTankTexture));
+    EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 5, 3, MechTexture));
+    EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 5, 4, HeavyTankTexture));
+
+    // NOTE: config.json is a config file that contains width, height and framerate 
     std::fstream f("./config/settings.json");
     json settings = json::parse(f);
     std::cout << "[PNZ] Config succesful loaded!" << std::endl;
@@ -156,22 +173,62 @@ int main() {
                         MaxWidth = test["Width1"];
                         MaxHeight = test["Height1"];
                         level = 1;
+                        PlayerUnits.clear();
+                        PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 16, 2, 3, 1, 0, 6, TankTexture));
+                        PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 5, HoverTankTexture));
+                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 4, MechTexture));
+                        PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 3, HeavyTankTexture));
+                        EnemyUnits.clear();
+                        EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 6, 0, TankTexture));
+                        EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 6, 1, HoverTankTexture));
+                        EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 6, 2, MechTexture));
+                        EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 6, 3, HeavyTankTexture));
                     } else if (selectedItem == 1) {
                         std::cout << "[PNZ -> Missions] Loading 2" << std::endl;
                         MaxWidth = test["Width2"];
                         MaxHeight = test["Height2"];
                         level = 2;
+                        PlayerUnits.clear();
+                        PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+                        PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 3, HoverTankTexture));
+                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 4, MechTexture));
+                        PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 5, HeavyTankTexture));
+                        EnemyUnits.clear();
+                        EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 6, 1, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 4, 1, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 6, 3, TankTexture));
+                        EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 4, 5, MechTexture));
+                        EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 6, 5, HeavyTankTexture));
                     } else if (selectedItem == 2) {
                         std::cout << "[PNZ -> Missions] Loading 3" << std::endl;
                         MaxWidth = test["Width3"];
                         MaxHeight = test["Height3"];
                         level = 3;
+                        PlayerUnits.clear();
+                        PlayerUnits.push_back(Unit("Mech", 2, 1, 15, 4, 3, 5, 1, 0, 0, 0, MechTexture));
+                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 2, 1, MechTexture));
+                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 1, 3, MechTexture));
+                        PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 5, MechTexture));
+                        EnemyUnits.clear();
+                        EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 5, 0, HeavyTankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 4, 3, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank", 2, 2, 15, 4, 3, 5, 1, 0, 4, 2, TankTexture));
+                        EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 6, 1, HeavyTankTexture));
                     } else if (selectedItem == 3) {
                         std::cout << "[PNZ -> Missions] Loading 4" << std::endl;
                         MaxWidth = test["Width4"];
                         MaxHeight = test["Height4"];
                         level = 4;
-
+                        EnemyUnits.clear();
+                        EnemyUnits.push_back(Unit("Tank", 2, 1, 15, 4, 3, 5, 1, 0, 1, 0, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank",      3, 1, 25, 6, 2, 3, 2, 0, 0, 1, TankTexture));
+                        EnemyUnits.push_back(Unit("HoverTank",      3, 1, 25, 6, 2, 3, 2, 0, 1, 1, HoverTankTexture));
+                        EnemyUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 6, MechTexture));
+                        EnemyUnits.clear();
+                        EnemyUnits.push_back(Unit("Tank", 2, 1, 15, 4, 3, 5, 1, 0, 6, 2, TankTexture));
+                        EnemyUnits.push_back(Unit("Tank",      3, 1, 25, 6, 2, 3, 2, 0, 6, 3, TankTexture));
+                        EnemyUnits.push_back(Unit("HoverTank",      3, 1, 25, 6, 2, 3, 2, 0, 6, 4, HoverTankTexture));
+                        EnemyUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 5, 6, MechTexture));
                     }
                 }
             }
@@ -201,30 +258,30 @@ int main() {
             {
                 level = 0;
                 PlayerMoney +=5;
-                EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
-                EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
-                EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
-                EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+                EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankTexture));
+                EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+                EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, MechTexture));
+                EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, HeavyTankTexture));
                 PlayerUnits.clear();
-                PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
-                PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
-                PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
-                PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+                PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankTexture));
+                PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+                PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, MechTexture));
+                PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, HeavyTankTexture));
 
             };
             if (PlayerUnits.size() == 0)
             {
                 level = 0;
                 PlayerMoney -=5;
-                EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
-                EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
-                EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
-                EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+                EnemyUnits.push_back(Unit("Tank",      1, 2, 20, 10, 6, 2, 3, 1, 0, 1, TankTexture));
+                EnemyUnits.push_back(Unit("HoverTank", 2, 2, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+                EnemyUnits.push_back(Unit("Mech",      3, 2, 25, 6, 2, 3, 2, 0, 0, 3, MechTexture));
+                EnemyUnits.push_back(Unit("HeavyTank", 4, 2, 30, 5, 4, 2, 3, 1, 0, 4, HeavyTankTexture));
                 EnemyUnits.clear();
-                PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankUnit));
-                PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, TankUnit));
-                PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, TankUnit));
-                PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, TankUnit));
+                PlayerUnits.push_back(Unit("Tank",      1, 1, 20, 10, 6, 2, 3, 1, 0, 1, TankTexture));
+                PlayerUnits.push_back(Unit("HoverTank", 2, 1, 15, 4, 3, 5, 1, 0, 0, 2, HoverTankTexture));
+                PlayerUnits.push_back(Unit("Mech",      3, 1, 25, 6, 2, 3, 2, 0, 0, 3, MechTexture));
+                PlayerUnits.push_back(Unit("HeavyTank", 4, 1, 30, 5, 4, 2, 3, 1, 0, 4, HeavyTankTexture));
 
             };
 
@@ -256,8 +313,9 @@ int main() {
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::C))
                     state = 0;
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::V)) { 
+                    for (Unit &unit : PlayerUnits) unit.resetMoveAndAtack();
+                    for (Unit &unit : EnemyUnits) unit.resetMoveAndAtack();
                     state = 4;
-                    PlayerUnits[currentSelected].resetMoveAndAtack();
                 }
 
                 if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) && state == 2) {
