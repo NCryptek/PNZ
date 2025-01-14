@@ -6,7 +6,7 @@ Garage::Garage(float width, float height): sprite(texture){
         std::abort(); // Abort if the font fails to load
     }
 
-    if (!texture.loadFromFile("assets/hangar_background.jpg")) 
+    if (!texture.loadFromFile("assets/hangar_background.png")) 
         std::cout << "Not loaded file\n";
     
     sprite.setTextureRect(sf::IntRect({0, 0},{int(width), int(height)}));
