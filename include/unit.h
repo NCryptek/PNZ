@@ -1,16 +1,11 @@
-// Unit.h
 #ifndef UNIT_H
 #define UNIT_H
 
 #include <SFML/Graphics.hpp>
 #include <string>
 
-extern int UnitMap[20][20] = {0};  
-extern float dmgEff[3][2] = {
-    {1.0,  0.5 }, 
-    {0.5,  1.0 }, 
-    {0.75, 0.75}
-}; 
+extern int UnitMap[20][20];  
+extern float dmgEff[3][2]; 
 
 class Unit {
     sf::Sprite sprite;
@@ -44,6 +39,7 @@ public:
     void UpgradeMovement(int newMovement);
     void UpgradeDamage(int newDamage);
     void resetMoveAndAtack();
+    int isOccupied(int x, int y);
 };
 
 #endif
