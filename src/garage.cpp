@@ -15,7 +15,7 @@ Garage::Garage(float width, float height): sprite(texture){
     for (int i = 0; i < missions.size(); ++i) {
         sf::Text text(font, missions[i], 30);
         text.setStyle(sf::Text::Bold);
-        text.setFillColor(sf::Color::Green);
+        text.setFillColor(sf::Color::Black);
         text.setPosition(sf::Vector2f(width-300, height / (missions.size() + 5) * (i + 1.5)));
         HangarItems.push_back(text);
         }
