@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 
 Tile::Tile(int typeOfTile, int a, int b, sf::Texture &tileSheetTexture): sprite(tileSheetTexture) {
-    if (tileSheetTexture.loadFromFile("assets/ground.png")) {
+    // if (tileSheetTexture.loadFromFile("assets/ground.png")) {
         tileWidth = 64;
         tileHeight = 64;
         X = float(a*tileWidth);
@@ -18,7 +18,7 @@ Tile::Tile(int typeOfTile, int a, int b, sf::Texture &tileSheetTexture): sprite(
             sprite.setTextureRect(sf::IntRect({tileWidth, 0},{tileWidth, tileHeight}));
             sprite.setPosition({X, Y});
         }
-    }
+    // }
 }
 
 sf::Sprite Tile::Draw() {

@@ -16,13 +16,14 @@ float dmgEff[3][2] = {
 }; 
 
 Unit::Unit(std::string NAME, int ID, int IDOwner, int MAXHEALTH, int DAMAGE, int RANGE, int MOVEMENT, int DT, int AT, int X, int Y, sf::Texture &UnitTexture):  sprite(UnitTexture) {
-    if (UnitTexture.loadFromFile("assets/unit.jpg")) {
+    // if (UnitTexture.loadFromFile("assets/unit.jpg")) {
         if(ID == 1) {
             sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
             sprite.setPosition({float(X*64), float(Y*64)});
         }
         if(ID == 2) {
-            sprite.setTextureRect(sf::IntRect({64, 0},{64, 64}));
+            // sprite.setTextureRect(sf::IntRect({64, 0},{64, 64}));
+            sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
             sprite.setPosition({float(X*64), float(Y*64)});
         }
         if(ID == 3) {
@@ -30,7 +31,8 @@ Unit::Unit(std::string NAME, int ID, int IDOwner, int MAXHEALTH, int DAMAGE, int
             sprite.setPosition({float(X*64), float(Y*64)});
         }
         if(ID == 4) {
-            sprite.setTextureRect(sf::IntRect({64, 0},{64, 64}));
+            // sprite.setTextureRect(sf::IntRect({64, 0},{64, 64}));
+            sprite.setTextureRect(sf::IntRect({0, 0},{64, 64}));
             sprite.setPosition({float(X*64), float(Y*64)});
         }
 
@@ -49,7 +51,7 @@ Unit::Unit(std::string NAME, int ID, int IDOwner, int MAXHEALTH, int DAMAGE, int
         x = X;
         y = Y;
         UnitMap[x][y] = idOwner;
-    }
+    // }
 }
 
 void Unit::takeDamage(int dmg, int dT) {
